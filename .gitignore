@@ -43,6 +43,7 @@ Thumbs.db
 
 # Package manager components #
 #####################
+src/style/utility
 node_modules
 .sass-cache
 files
