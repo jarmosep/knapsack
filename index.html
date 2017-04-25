@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Knapsack optimizer</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,500|Share+Tech" rel="stylesheet">
+  <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css"></link>
+  <link rel="stylesheet" href="./build/style.css"></link>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+  <script src="./build/code.js"></script>
+</head>
+<body ng-app="KnapsackOptimizer">
+<div class="header">
+  <div class="appinfo">
+    <h1>Workload optimator</h1>
+  </div>
+</div>
+<div class="container" ng-controller="MainCtrl">
+  <div class="unoptimized">
+    <div class="description">
+      <li> # </li>
+      <li> Name </li>
+      <li> Points </li>
+      <li> Hours </li>
+      <li> Actions </li>
+    </div>
+    <div class="tasks">
+      <!-- toistetaan task-diviä niin monta kertaa kuin kursseja löytyy -->
+      <div class="task" ng-repeat="task in tasks track by $index">
+          <div class="data">
+            <li> {{ $index + 1 }} </li>
+            <li> {{ task.name }} </li>
+            <li> {{ task.points }} </li>
+            <li> {{ task.hours }} </li>
+            <li>
+              <span class="ion-edit" ng-click="editing = true"></span> <!-- kun editing on true, edintointiform on näkyvissä -->
+              <span class="ion-trash-a" ng-click="delete($index)"></span> <!-- poistetaan kyseisen indeksinumeron omaava kurssiobjekti -->
+            </li>
+            <div class="edit-data">
+              <form ng-show="editing" ng-submit="editing = false" name="editForm" novalidate> <!-- kun editointi tehty - nappia painetaan - form piiloutuu -->
+                <input type="text" ng-model="task.name" placeholder="Name" required>
+                <input type="number" ng-model="task.points" placeholder="Points (1-50)" min="1" max="50" step="1" pattern="\d+" required>
+                <input type="number" ng-model="task.hours" placeholder="Hours (1-200)" min="1" max="200" step="1" pattern="\d+" required>
+                <button class="button" type="submit" ng-disabled="editForm.$invalid">Save edits</button> <!-- nappi on disabloitu jos syötteet eivät ole validoinnin mukaisia -->
+              </form>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
+  <div class="optimized" ng-show="optimized">
+    <div class="description">
+      <li> # </li>
+      <li> Name </li>
+      <li> Points </li>
+      <li> Hours </li>
+    </div>
+    <div class="tasks">
+      <!-- toistetaan optimoidut kurssit, niin monta kertaa kuin niitä löytyy -->
+      <div class="task" ng-repeat="newTask in result.set track by $index">
+          <div class="data" ng-style="{'animation-delay': 300*$index+'ms'}">
+            <li> {{ $index + 1 }} </li>
+            <li> {{ newTask.name }} </li>
+            <li> {{ newTask.points }} </li>
+            <li> {{ newTask.hours }} </li>
+         </div>
+      </div>
+      <div class="result" ng-style="{'animation-delay': 300*result.set.length+'ms'}">
+        <li> Total: </li>
+        <li>  </li>
+        <li> {{ result.maxValue }} </li> <!-- maksimi pistearvo joka on saavutettu -->
+        <li> {{ setCap }} </li> <!-- kapasiteettiarvo, jonka käyttäjä asetti -->
+      </div>
+    </div>
+  </div>
+  <div class="setTask">
+    <!-- lisätään uusi kurssi kutsumalla funktiota -->
+    <form ng-submit="newTask()" name="submitTask" novalidate>
+      <input type="text" ng-model="taskname" placeholder="Task name" required>
+      <input type="number" ng-model="taskcredits" placeholder="Points (1-50)" min="1" max="50" step="1" pattern="\d+" required>
+      <input type="number" ng-model="taskhours" placeholder="Hours (1-200)" min="1" max="200" step="1" pattern="\d+" required>
+      <button class="button" type="submit" ng-disabled="submitTask.$invalid">Add new task</button>
+    </form>
+  </div>
+  <div class="setup">
+    <label>Set the wanted capacity for working hours</label>
+    <input type="number" min=1 max=200 ng-model="sackCapacity"></input>
+  </div>
+  <!-- kutsutaan knapsack-optimointifunktiota -->
+  <button class="optimize" ng-hide="tasks.length == 0" ng-show="sackCapacity >= 0" ng-click="optimizeCourses(); optimized = true">Optimize the workload</button>
+</div>
+</body>
+</html>
